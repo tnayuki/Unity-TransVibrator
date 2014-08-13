@@ -18,6 +18,10 @@ NSString* const LTIOUSBManagerObjectBaseClassKey; // the value must be NSString
 
 //@class LTIOUSBDevice;
 @interface LTIOUSBManager : NSObject
+{
+    NSMutableArray* _devices;
+    BOOL _isStarted;
+}
 
 // Primitive
 + (LTIOUSBManager*)sharedInstance;

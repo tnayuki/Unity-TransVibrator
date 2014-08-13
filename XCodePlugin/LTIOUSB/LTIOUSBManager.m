@@ -52,6 +52,8 @@ void _LTIOUSBDeviceAdded(void* context, io_iterator_t iterator)
     if (addedDevices.count) {
         [[NSNotificationCenter defaultCenter] postNotificationName:LTIOUSBDeviceConnectedNotification object:addedDevices];
     }
+    
+    [addedDevices release];
 }
 
 void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
@@ -82,14 +84,9 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
     if (removed.count) {
         [[NSNotificationCenter defaultCenter] postNotificationName:LTIOUSBDeviceDisconnectedNotification object:removed];
     }
+    
+    [removed release];
 }
-
-@interface LTIOUSBManager()
-{
-    NSMutableArray* _devices;
-    BOOL _isStarted;
-}
-@end
 
 @implementation LTIOUSBManager
 
@@ -112,6 +109,13 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
         _devices = [[NSMutableArray alloc] init];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [_devices release];
+    
+    [super dealloc];
 }
 
 -(void)addDevice:(LTIOUSBDevice *)device
@@ -140,7 +144,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
 	CFRunLoopRef runLoop = CFRunLoopGetCurrent();
 	CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
     
-    NSDictionary* deviceClassMatchingDict = [[NSDictionary alloc] initWithDictionary:(__bridge_transfer NSDictionary*)IOServiceMatching(kIOUSBDeviceClassName)];
+    NSDictionary* deviceClassMatchingDict = [[[NSDictionary alloc] initWithDictionary:(NSDictionary*)IOServiceMatching(kIOUSBDeviceClassName)] retain];
     
     for (NSDictionary* dict in matching) {
         
@@ -149,7 +153,8 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
             [matchingDict setObject:[deviceClassMatchingDict objectForKey:key] forKey:key];
         }
         
-        CFStringRef objectBaseClassName = (__bridge_retained CFStringRef)[matchingDict objectForKey:LTIOUSBManagerObjectBaseClassKey];
+        CFStringRef objectBaseClassName = (CFStringRef)[matchingDict objectForKey:LTIOUSBManagerObjectBaseClassKey];
+        CFRetain(objectBaseClassName);
         
         // remove Object Base Class object, to use it matching dictionary
         [matchingDict removeObjectForKey:LTIOUSBManagerObjectBaseClassKey];
@@ -158,7 +163,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
         NSLog(@"matching dict: %@", matchingDict);
         
         io_iterator_t iterator = IO_OBJECT_NULL;
-        kern_return_t kr = IOServiceAddMatchingNotification(notifyPort, kIOFirstMatchNotification, (__bridge_retained CFDictionaryRef)matchingDict, _LTIOUSBDeviceAdded,
+        kern_return_t kr = IOServiceAddMatchingNotification(notifyPort, kIOFirstMatchNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceAdded,
                                          (void*)objectBaseClassName, &iterator);
         if (kr != kIOReturnSuccess) {
             CFRelease(objectBaseClassName);
@@ -171,7 +176,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
         }
         
         iterator = IO_OBJECT_NULL;
-        kr = IOServiceAddMatchingNotification(notifyPort, kIOTerminatedNotification, (__bridge_retained CFDictionaryRef)matchingDict, _LTIOUSBDeviceRemoved,
+        kr = IOServiceAddMatchingNotification(notifyPort, kIOTerminatedNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceRemoved,
                                          (void*)objectBaseClassName, &iterator);
         if (kr != kIOReturnSuccess) {
             CFRelease(objectBaseClassName);
@@ -208,7 +213,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
 
 + (NSMutableDictionary*)matchingDictionaryForProductID:(uint16_t)deviceID vendorID:(uint16_t)vendorID objectBaseClass:(Class)cls
 {
-    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* dict = [[[NSMutableDictionary alloc] init] autorelease];
     [dict setObject:NSStringFromClass(cls) forKey:LTIOUSBManagerObjectBaseClassKey];
     
     [dict setObject:[NSNumber numberWithUnsignedShort:deviceID] forKey:[NSString stringWithUTF8String:kUSBProductID]];
@@ -217,14 +222,9 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
     return dict;
 }
 
-+ (NSMutableDictionary*)matchingDictionaryWithDeviceClass:(uint16_t)deviceClass objectBaseClass:(Class)cls
-{
-    
-}
-
 + (NSMutableDictionary*)matchingDictionaryForAllUSBDevicesWithObjectBaseClass:(Class)cls
 {
-    NSMutableDictionary* dict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary* dict = [[[NSMutableDictionary alloc] init] autorelease];
     [dict setObject:NSStringFromClass(cls) forKey:LTIOUSBManagerObjectBaseClassKey];
     
     return dict;

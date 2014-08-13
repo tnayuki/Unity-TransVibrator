@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		E92D5A0D199B413F00489661 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E92D5A0C199B413F00489661 /* Cocoa.framework */; };
 		E92D5A17199B413F00489661 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E92D5A15199B413F00489661 /* InfoPlist.strings */; };
+		E92D5A2A199B475200489661 /* LTIOUSBDevice.m in Sources */ = {isa = PBXBuildFile; fileRef = E92D5A27199B475200489661 /* LTIOUSBDevice.m */; };
+		E92D5A2B199B475200489661 /* LTIOUSBManager.m in Sources */ = {isa = PBXBuildFile; fileRef = E92D5A29199B475200489661 /* LTIOUSBManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +22,10 @@
 		E92D5A14199B413F00489661 /* TransVibratorPlugin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TransVibratorPlugin-Info.plist"; sourceTree = "<group>"; };
 		E92D5A16199B413F00489661 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E92D5A18199B413F00489661 /* TransVibratorPlugin-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TransVibratorPlugin-Prefix.pch"; sourceTree = "<group>"; };
+		E92D5A26199B475200489661 /* LTIOUSBDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTIOUSBDevice.h; sourceTree = "<group>"; };
+		E92D5A27199B475200489661 /* LTIOUSBDevice.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTIOUSBDevice.m; sourceTree = "<group>"; };
+		E92D5A28199B475200489661 /* LTIOUSBManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LTIOUSBManager.h; sourceTree = "<group>"; };
+		E92D5A29199B475200489661 /* LTIOUSBManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LTIOUSBManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +44,7 @@
 			isa = PBXGroup;
 			children = (
 				E92D5A12199B413F00489661 /* TransVibratorPlugin */,
+				E92D5A25199B475200489661 /* LTIOUSB */,
 				E92D5A0B199B413F00489661 /* Frameworks */,
 				E92D5A0A199B413F00489661 /* Products */,
 			);
@@ -86,6 +93,17 @@
 				E92D5A18199B413F00489661 /* TransVibratorPlugin-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E92D5A25199B475200489661 /* LTIOUSB */ = {
+			isa = PBXGroup;
+			children = (
+				E92D5A26199B475200489661 /* LTIOUSBDevice.h */,
+				E92D5A27199B475200489661 /* LTIOUSBDevice.m */,
+				E92D5A28199B475200489661 /* LTIOUSBManager.h */,
+				E92D5A29199B475200489661 /* LTIOUSBManager.m */,
+			);
+			path = LTIOUSB;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,6 +167,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E92D5A2B199B475200489661 /* LTIOUSBManager.m in Sources */,
+				E92D5A2A199B475200489661 /* LTIOUSBDevice.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

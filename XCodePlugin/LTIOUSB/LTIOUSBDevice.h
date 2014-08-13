@@ -19,6 +19,14 @@ typedef void (^LTIOUSBDeviceWriteCallback)(BOOL success);
 
 // Abstract class
 @interface LTIOUSBDevice : NSObject
+{
+    NSString* _identifier;
+    BOOL _connected;
+    io_service_t _handle;
+    IOCFPlugInInterface** _pluginInterface;
+    IOUSBDeviceInterface320** _deviceInterface;
+    IOUSBInterfaceInterface300** _interfaceInterface;
+}
 
 
 @property (nonatomic, readonly, getter = isConnected) BOOL connected;

@@ -35,17 +35,6 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
 
 
 
-@interface LTIOUSBDevice()
-{
-    NSString* _identifier;
-    BOOL _connected;
-    io_service_t _handle;
-    IOCFPlugInInterface** _pluginInterface;
-    IOUSBDeviceInterface320** _deviceInterface;
-    IOUSBInterfaceInterface300** _interfaceInterface;
-}
-@end
-
 @implementation LTIOUSBDevice
 
 @synthesize connected = _connected;
@@ -53,11 +42,18 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
 @synthesize deviceInterface = _deviceInterface;
 @synthesize interfaceInterface = _interfaceInterface;
 
+- (void)dealloc
+{
+    [_identifier release];
+    
+    [super dealloc];
+}
+
 -(NSDictionary *)deviceInfo
 {
     CFMutableDictionaryRef dict = NULL;
     IORegistryEntryCreateCFProperties(_handle, &dict, NULL, 0);
-    return (__bridge_transfer NSDictionary*)dict;
+    return (NSDictionary*)dict;
 }
 
 -(io_service_t)deviceHandle
@@ -89,7 +85,7 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
     CFNumberRef vendorID = CFDictionaryGetValue(dict, CFSTR(kUSBVendorID) );
     CFStringRef serialNum = CFDictionaryGetValue(dict, CFSTR(kUSBSerialNumberString));
     
-    NSString* ids = [NSString stringWithFormat:@"%@-%x-%x", serialNum, [(__bridge NSNumber*)productID unsignedIntValue], [(__bridge NSNumber*)vendorID unsignedIntValue]];
+    NSString* ids = [NSString stringWithFormat:@"%@-%x-%x", serialNum, [(NSNumber*)productID unsignedIntValue], [(NSNumber*)vendorID unsignedIntValue]];
     if (dict) {
         CFRelease(dict);
     }
@@ -458,7 +454,7 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
         }
     } copy];
     
-    CFTypeRef readCallBack =  (__bridge_retained CFTypeRef)readCallBackObj;
+    CFTypeRef readCallBack =  (CFTypeRef)readCallBackObj;
     
     IOReturn ret = (*interface)->ReadPipeAsyncTO(interface, pipe, buffer, maxSize, dto, cto, _LTUSBInterfaceReadWriteAsyncCallback, (void*)readCallBack);
     
@@ -477,7 +473,7 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
         return NO;
     }
     
-    CFTypeRef writeCallBack =  (__bridge_retained CFTypeRef)[^ void(NSUInteger size, IOReturn result) {
+    CFTypeRef writeCallBack =  (CFTypeRef)[^ void(NSUInteger size, IOReturn result) {
         BOOL success = (size == data.length) ? YES : NO;
         if (callback) {
             callback(success);
@@ -520,7 +516,7 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
 {
     self = [super init];
     if (self) {
-        _identifier = identifier;
+        _identifier = [identifier retain];
         _handle = IO_OBJECT_NULL;
     }
     return self;
@@ -570,7 +566,7 @@ void _LTUSBInterfaceReadWriteAsyncCallback(void *refcon, IOReturn result, void *
 
 -(NSString *)description
 {
-    return [NSString stringWithFormat:@"%@ %@: (%p) %@\n----%@-%@", [super description], _identifier, _handle, IOObjectCopyClass(_handle), [self.deviceInfo objectForKey:@"USB Product Name"], _connected ? @"connected": @"disconnected"];
+    return [NSString stringWithFormat:@"%@ %@: (%u) %@\n----%@-%@", [super description], _identifier, _handle, IOObjectCopyClass(_handle), [self.deviceInfo objectForKey:@"USB Product Name"], _connected ? @"connected": @"disconnected"];
 }
 
 
