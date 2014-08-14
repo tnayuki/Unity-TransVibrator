@@ -113,6 +113,8 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
 
 - (void)dealloc
 {
+    [self stop];
+    
     [_devices release];
     
     [super dealloc];
@@ -139,8 +141,8 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
     mach_port_t masterPort = 0;
 	IOMasterPort(MACH_PORT_NULL, &masterPort);
     
-    IONotificationPortRef notifyPort = IONotificationPortCreate(masterPort);
-	CFRunLoopSourceRef runLoopSource = IONotificationPortGetRunLoopSource(notifyPort);
+    _notifyPort = IONotificationPortCreate(masterPort);
+	CFRunLoopSourceRef runLoopSource = IONotificationPortGetRunLoopSource(_notifyPort);
 	CFRunLoopRef runLoop = CFRunLoopGetCurrent();
 	CFRunLoopAddSource(runLoop, runLoopSource, kCFRunLoopDefaultMode);
     
@@ -163,7 +165,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
         NSLog(@"matching dict: %@", matchingDict);
         
         io_iterator_t iterator = IO_OBJECT_NULL;
-        kern_return_t kr = IOServiceAddMatchingNotification(notifyPort, kIOFirstMatchNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceAdded,
+        kern_return_t kr = IOServiceAddMatchingNotification(_notifyPort, kIOFirstMatchNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceAdded,
                                          (void*)objectBaseClassName, &iterator);
         if (kr != kIOReturnSuccess) {
             CFRelease(objectBaseClassName);
@@ -176,7 +178,7 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
         }
         
         iterator = IO_OBJECT_NULL;
-        kr = IOServiceAddMatchingNotification(notifyPort, kIOTerminatedNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceRemoved,
+        kr = IOServiceAddMatchingNotification(_notifyPort, kIOTerminatedNotification, CFRetain((CFDictionaryRef)matchingDict), _LTIOUSBDeviceRemoved,
                                          (void*)objectBaseClassName, &iterator);
         if (kr != kIOReturnSuccess) {
             CFRelease(objectBaseClassName);
@@ -190,6 +192,14 @@ void _LTIOUSBDeviceRemoved(void* context, io_iterator_t iterator)
     
     _isStarted = YES;
     return YES; // success
+}
+
+- (void)stop
+{
+    IONotificationPortDestroy(_notifyPort);
+    [_devices removeAllObjects];
+
+    _isStarted = NO;
 }
 
 -(LTIOUSBDevice*)deviceWithIdentifier:(NSString *)identifier

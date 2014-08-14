@@ -21,6 +21,7 @@ NSString* const LTIOUSBManagerObjectBaseClassKey; // the value must be NSString
 {
     NSMutableArray* _devices;
     BOOL _isStarted;
+    IONotificationPortRef _notifyPort;
 }
 
 // Primitive
@@ -28,6 +29,7 @@ NSString* const LTIOUSBManagerObjectBaseClassKey; // the value must be NSString
 - (BOOL)startWithMatchingDictionaries:(NSArray*)array; // return: not 0 is success
 @property (nonatomic, strong, readonly) NSArray* devices; // LTIOUSBDevice or its subclass
 
+- (void)stop;
 
 
 // Helper
