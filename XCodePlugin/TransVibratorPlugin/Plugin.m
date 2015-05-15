@@ -59,7 +59,7 @@ void DeinitializePlugin()
 
 int CountInternal()
 {
-    return [[LTIOUSBManager sharedInstance].devices count];
+    return (int)[[LTIOUSBManager sharedInstance].devices count];
 }
 
 void VibrateInternal(int index, unsigned char strength)

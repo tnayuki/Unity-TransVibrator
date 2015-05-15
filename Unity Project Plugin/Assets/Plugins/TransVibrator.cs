@@ -29,7 +29,7 @@ public class TransVibrator
 
 				GameObject internalGameObject = new GameObject ();
 				internalGameObject.name = "__TransVibratorInternal";
-				internalGameObject.AddComponent ("TransVibratorInternal");
+				internalGameObject.AddComponent <TransVibratorInternal>();
 
 				isInitialized = true;
 		}
